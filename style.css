@@ -49,12 +49,55 @@ html {
 
 .content-sidebar-menu {
   background-color: #474e5d;
-  padding: 1em;
+  padding: 2rem;
   color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+}
+
+#start-game-button, #new-round-button {
+  color: white;
+  background-color: #e4a80d;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  border: none;
+}
+
+#start-game-button:hover,
+#new-round-button:hover,
+button:hover {
+  cursor: pointer;
+  background-color: #ca940c;
+}
+
+#start-game-button:active,
+#new-round-button:active,
+button:active {
+  background-color: #9f750a;
+  outline: none;
 }
 
 .content-sidebar-advertisement {
   background-color: #474e5d;
+  padding: 2rem;
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  margin: 0;
+  gap: 1rem;
+}
+
+
+.content {
+  padding: 2rem;
 }
 
 .content-main {
@@ -63,11 +106,53 @@ html {
   color: #333;
   height: 100%;
   text-align: center;
+  border: 1px solid black;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .content-main p {
   text-align: left;
-  margin-bottom: 1em;
+}
+
+h2 {
+  margin: 0;
+  padding: 0;
+}
+
+h3 {
+  margin: 0;
+  padding: 0;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  border: 1px solid black;
+  border-radius: 1rem;
+  padding: 1rem;
+  width: 50%;
+  height: 15rem;
+  gap: 0.5rem;
+}
+
+.cell {
+  margin: 0;
+  border-radius: 1rem;
+  color: white;
+  background-color: #e4a80d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 1.5rem;
+  border: 1px solid grey;
+  cursor: pointer;
 }
 
 .footer {
