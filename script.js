@@ -110,12 +110,6 @@ function useGameController(
         const currentBoard = board.getBoard();
         const token = getActivePlayer().token;
 
-        const winPositions = {
-            row: [],
-            col: [],
-            diag:[]
-        }
-
         // 1. Verificar Linhas
         const rowWin = currentBoard.some(row =>
             row.every(cell => cell.getValue() === token)
@@ -140,16 +134,7 @@ function useGameController(
             console.log(`${getActivePlayer().name} won the game!`);
             roundsPlayed = 0;
             gameOver = true;
-
-            if (rowWin) {
-                winPositions.row = currentBoard.filter(row => row.every(cell => cell.getValue() === token)).map()
-            }
-            if (colWin) {
-
-            }
-            if (diagWin) {
-
-            }
+            return true;
         }
 
         // Verificar Empate (Velha)
