@@ -110,6 +110,12 @@ function useGameController(
         const currentBoard = board.getBoard();
         const token = getActivePlayer().token;
 
+        const winPositions = {
+            row: [],
+            col: [],
+            diag:[]
+        }
+
         // 1. Verificar Linhas
         const rowWin = currentBoard.some(row =>
             row.every(cell => cell.getValue() === token)
@@ -134,7 +140,16 @@ function useGameController(
             console.log(`${getActivePlayer().name} won the game!`);
             roundsPlayed = 0;
             gameOver = true;
-            return true;
+
+            if (rowWin) {
+                winPositions.row = currentBoard.filter(row => row.every(cell => cell.getValue() === token)).map()
+            }
+            if (colWin) {
+
+            }
+            if (diagWin) {
+
+            }
         }
 
         // Verificar Empate (Velha)
@@ -158,7 +173,11 @@ function useGameController(
     };
 }
 
-function useScreenController() {
+function useScreenController(
+    playerOneName = 'Player One',
+    playerTwoName = 'Player Two'
+) {
+
     if (gameOver) {
         return;
     }
@@ -168,7 +187,8 @@ function useScreenController() {
         return;
     }
 
-    const game = useGameController();
+
+    const game = useGameController(playerOneName, playerTwoName);
     const contentMainDiv = document.querySelector('.content-main');
     contentMainDiv.textContent = '';
 
@@ -190,11 +210,11 @@ function useScreenController() {
 
         const playerOne = document.createElement('h3');
         playerOne.setAttribute('id', 'player-one');
-        playerOne.textContent = game.getPlayersNames().PlayerOneName + ': ';
+        playerOne.textContent = game.getPlayersNames().PlayerOneName + ': 0';
 
         const playerTwo = document.createElement('h3');
         playerTwo.setAttribute('id', 'player-two');
-        playerTwo.textContent = game.getPlayersNames().PlayerTwoName + ': ';
+        playerTwo.textContent = game.getPlayersNames().PlayerTwoName + ': 0';
 
         rightSideMenuDiv.append(scoreboardTitle, playerOne, playerTwo);
 
@@ -314,8 +334,17 @@ function useScreenController() {
         newRoundButton.textContent = 'New Round';
         newRoundButton.addEventListener('click', resetBoard);
 
-        leftSideMenuDiv.append(newRoundButton);
+        let resetButton = document.createElement('button');
+        resetButton.setAttribute('type', 'button');
+        resetButton.classList.add('game-button');
+        resetButton.textContent = 'Reset Game';
+        resetButton.addEventListener('click', () => {
+            window.location.reload();
+        });
+
+        leftSideMenuDiv.append(newRoundButton, resetButton);
         newRoundButtonAdded = true;
+
     }
 
     // Renderização Inicial
@@ -325,13 +354,69 @@ function useScreenController() {
 function createPlayersForm() {
     const menuContainer = document.querySelector('.content-sidebar-menu');
     const backupMenu = menuContainer.cloneNode(true);
-    contentSidebarMenu.textContent = '';
+    menuContainer.textContent = '';
+
+    let createPlayerForm = document.createElement('form');
+    createPlayerForm.setAttribute('id', 'create-players-form')
+
+    let formTitle = document.createElement('h4');
+    formTitle.textContent = 'Please input the name of the players:'
+
+    let p1FormField = document.createElement('div');
+    let p1NameInput = document.createElement('input');
+    p1NameInput.setAttribute('type', 'text');
+    p1NameInput.setAttribute('name', 'p1-name');
+    p1NameInput.setAttribute('id', 'p1-name');
+    p1NameInput.setAttribute('minlength', '4');
+    p1NameInput.setAttribute('maxlength', '15');
+    p1NameInput.required = true;
+
+    let p1Label = document.createElement('label');
+    p1Label.htmlFor = 'p1-name';
+    p1Label.innerHTML = 'Player One:'
+
+    p1FormField.append(p1Label, p1NameInput);
+    p1FormField.classList.add('form-field');
+
+    let p2FormField = document.createElement('div');
+    let p2NameInput = document.createElement('input');
+    p2NameInput.setAttribute('type', 'text');
+    p2NameInput.setAttribute('name', 'p2-name');
+    p2NameInput.setAttribute('id', 'p2-name');
+    p2NameInput.setAttribute('minlength', '10');
+    p2NameInput.setAttribute('maxlength', '15');
+    p2NameInput.required = true;
+
+    let p2Label = document.createElement('label');
+    p2Label.htmlFor = 'p2-name';
+    p2Label.innerHTML = 'Player Two:'
+
+    p2FormField.append(p2Label, p2NameInput);
+    p2FormField.classList.add('form-field');
+
+    let beginButton = document.createElement('button');
+    beginButton.setAttribute('type', 'submit');
+    beginButton.classList.add('game-button');
+    beginButton.textContent = 'Begin';
 
     let cancelButton = document.createElement('button');
     cancelButton.setAttribute('type', 'button');
     cancelButton.classList.add('game-button');
     cancelButton.textContent = 'Cancel';
-    cancelButton.addEventListener('click', resetBoard);
+    cancelButton.addEventListener('click', () => {
+        menuContainer.replaceWith(backupMenu);
+        const startGameButton = document.getElementById('start-game-button');
+        startGameButton.addEventListener('click', createPlayersForm);
+    });
+
+    createPlayerForm.append(formTitle, p1FormField, p2FormField, beginButton, cancelButton);
+    menuContainer.append(createPlayerForm);
+
+    createPlayerForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        menuContainer.textContent = '';
+        useScreenController(p1NameInput.value, p2NameInput.value);
+    })
 }
 
 
@@ -344,17 +429,18 @@ let playerTwoScore = 0;
 let roundsPlayed = 0;
 
 /*
-    Faltam 3 coisas: 
+    Faltam 2 coisas: 
     - Adicionar formulário que pega os nomes dos usuários.
-        * Primeiro, criar um método que retorna um objeto com os dois nomes dos jogadores.
-        * Segundo, adicionar outros dois botões:
-            - Um de submit que chama useScreenController() e inicia o jogo.
-            - Outro que cancela a entrada do usuário e volta pra tela inicial.
-    - Botão que reseta o jogo todo e a scoreboard (o resetRound pode ajudar aqui).
+        * Primeiro, criar um método que retorna um objeto com os dois nomes dos jogadores. OK
+        * Segundo, adicionar outros dois botões: OK
+            - Um de submit que chama useScreenController() e inicia o jogo. OK
+            - Outro que cancela a entrada do usuário e volta pra tela inicial. OK
+        * Terceiro, assim que o botão de submit for clicado o formulário precisa sair.
+        * Quarto, quando o formulário sair devem ficar apenas o botão 'New Round' e o botão que reseta o game todo.
     - Colocar uma linha traçando os tokens que ganharam o round.
 */
 
 const startGameButton = document.getElementById('start-game-button');
-startGameButton.addEventListener('click', useScreenController);
+startGameButton.addEventListener('click', createPlayersForm);
 
 

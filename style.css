@@ -59,6 +59,45 @@ html {
   margin: 0;
 }
 
+.content-sidebar-menu button {
+  width: 50%;
+}
+
+form {
+  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-weight: bold;
+}
+
+
+form input[type="text"] {
+  width: 100%;
+  font-size: 1rem;
+  height: 2rem;
+}
+
+input {
+  border-radius: 1em;
+  border: none;
+  background-color: rgb(224, 223, 223);
+  padding: 0.5em 1em;
+}
+
+input:focus {
+  outline: none;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+}
+
 .game-button {
   color: white;
   background-color: #e4a80d;
@@ -66,6 +105,7 @@ html {
   padding: 0.5rem 1rem;
   border-radius: 1rem;
   border: none;
+  font-weight: bold;
 }
 
 .game-button:hover,
@@ -188,6 +228,22 @@ h3 {
   .content-sidebar-menu {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
+  }
+
+  .content-sidebar-menu {
+    background-color: #474e5d;
+    padding: 2rem;
+    color: white;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0;
+  }
+
+  .content-sidebar-menu button {
+    width: 100%;
   }
 
   .content-sidebar-advertisement {
