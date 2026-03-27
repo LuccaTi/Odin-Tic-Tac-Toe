@@ -59,7 +59,7 @@ html {
   margin: 0;
 }
 
-#start-game-button, #new-round-button {
+.game-button {
   color: white;
   background-color: #e4a80d;
   margin-top: 1rem;
@@ -68,15 +68,13 @@ html {
   border: none;
 }
 
-#start-game-button:hover,
-#new-round-button:hover,
+.game-button:hover,
 button:hover {
   cursor: pointer;
   background-color: #ca940c;
 }
 
-#start-game-button:active,
-#new-round-button:active,
+.game-button:active,
 button:active {
   background-color: #9f750a;
   outline: none;
@@ -94,7 +92,6 @@ button:active {
   margin: 0;
   gap: 1rem;
 }
-
 
 .content {
   padding: 2rem;

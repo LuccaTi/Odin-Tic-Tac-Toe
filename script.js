@@ -132,6 +132,7 @@ function useGameController(
         if (rowWin || colWin || diagWin) {
             //board.printBoard();
             console.log(`${getActivePlayer().name} won the game!`);
+            roundsPlayed = 0;
             gameOver = true;
             return true;
         }
@@ -158,10 +159,12 @@ function useGameController(
 }
 
 function useScreenController() {
-
-    // Adicionar aqui depois um formulário que pega os nomes dos dois jogadores
-
     if (gameOver) {
+        return;
+    }
+
+    if (newRoundButtonAdded) {
+        // A responsabilidade de resetar o jogo foi passada, não há necessidade de executar esse método novamente.
         return;
     }
 
@@ -263,7 +266,7 @@ function useScreenController() {
     gameBoardDiv.addEventListener('click', clickHandlerBoard);
 
     const resetBoard = () => {
-        if(game.getActivePlayer().player === 2){
+        if (game.getActivePlayer().player === 2) {
             game.switchPlayerTurn();
         }
 
@@ -307,7 +310,7 @@ function useScreenController() {
 
         let newRoundButton = document.createElement('button');
         newRoundButton.setAttribute('type', 'button');
-        newRoundButton.setAttribute('id', 'new-round-button');
+        newRoundButton.classList.add('game-button');
         newRoundButton.textContent = 'New Round';
         newRoundButton.addEventListener('click', resetBoard);
 
@@ -319,6 +322,18 @@ function useScreenController() {
     updateScreen();
 }
 
+function createPlayersForm() {
+    const menuContainer = document.querySelector('.content-sidebar-menu');
+    const backupMenu = menuContainer.cloneNode(true);
+    contentSidebarMenu.textContent = '';
+
+    let cancelButton = document.createElement('button');
+    cancelButton.setAttribute('type', 'button');
+    cancelButton.classList.add('game-button');
+    cancelButton.textContent = 'Cancel';
+    cancelButton.addEventListener('click', resetBoard);
+}
+
 
 let gameOver = false;
 let scoreboardCreated = false;
@@ -328,6 +343,16 @@ let playerOneScore = 0;
 let playerTwoScore = 0;
 let roundsPlayed = 0;
 
+/*
+    Faltam 3 coisas: 
+    - Adicionar formulário que pega os nomes dos usuários.
+        * Primeiro, criar um método que retorna um objeto com os dois nomes dos jogadores.
+        * Segundo, adicionar outros dois botões:
+            - Um de submit que chama useScreenController() e inicia o jogo.
+            - Outro que cancela a entrada do usuário e volta pra tela inicial.
+    - Botão que reseta o jogo todo e a scoreboard (o resetRound pode ajudar aqui).
+    - Colocar uma linha traçando os tokens que ganharam o round.
+*/
 
 const startGameButton = document.getElementById('start-game-button');
 startGameButton.addEventListener('click', useScreenController);
