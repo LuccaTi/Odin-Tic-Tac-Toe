@@ -72,7 +72,6 @@ form {
   font-weight: bold;
 }
 
-
 form input[type="text"] {
   width: 100%;
   font-size: 1rem;
@@ -173,10 +172,12 @@ h3 {
   border: 1px solid black;
   border-radius: 1rem;
   padding: 1rem;
-  width: 50%;
-  height: 15rem;
+  width: 100%;
+  max-width: 15rem;
+  aspect-ratio: 1/1;
   gap: 0.5rem;
   position: relative;
+  margin: 0 auto; 
 }
 
 .cell {
@@ -202,8 +203,8 @@ h3 {
   left: 0;
 }
 
-.winning-line.row-0{
-  top: 20%;
+.winning-line.row-0 {
+  top: calc(16.66% + 0.5rem);
   transform: translateY(-50%);
 }
 
@@ -213,19 +214,19 @@ h3 {
 }
 
 .winning-line.row-2 {
-  top: 80%;
+  top: calc(83.33% - 0.5rem);
   transform: translateY(-50%);
 }
 
 .winning-line.col-0 {
-  left: 16.66%;
+  left: calc(16.66% + 0.5rem);
   height: 100%;
   top: 0;
   width: 0.3rem;
   transform: translateX(-50%);
 }
 
-.winning-line.col-1{
+.winning-line.col-1 {
   left: 50%;
   height: 100%;
   top: 0;
@@ -234,7 +235,7 @@ h3 {
 }
 
 .winning-line.col-2 {
-  left: 83.33%;
+  left: calc(83.33% - 0.5rem);
   height: 100%;
   top: 0;
   width: 0.3rem;
@@ -242,16 +243,16 @@ h3 {
 }
 
 .winning-line.diag-0 {
-  width: 110%;
+  width: 130%;
   top: 50%;
-  left: -5%;
+  left: -15%;
   transform: translateY(-50%) rotate(45deg);
 }
 
 .winning-line.diag-1 {
-  width: 110%;
+  width: 130%;
   top: 50%;
-  left: -5%;
+  left: -15%;
   transform: translateY(-50%) rotate(-45deg);
 }
 
