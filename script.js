@@ -66,12 +66,14 @@ function useGameController(
     ]
 
     let activePlayer = players[0];
+    const getActivePlayer = () => activePlayer;
+
+    let winPositions = null;
+    const getWinPositions = () => winPositions;
 
     const switchPlayerTurn = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     };
-
-    const getActivePlayer = () => activePlayer;
 
     const getPlayersNames = () => ({
         PlayerOneName: playerOneName,
@@ -98,8 +100,11 @@ function useGameController(
             roundsPlayed++;
         }
 
-
-        if (!checkGameWinner()) {
+        winPositions = checkGameWinner();
+        if (winPositions.row.length === 0 &&
+            winPositions.col === -1 &&
+            winPositions.diag.length === 0
+        ) {
             switchPlayerTurn();
             //printNewRound();
         }
@@ -110,31 +115,69 @@ function useGameController(
         const currentBoard = board.getBoard();
         const token = getActivePlayer().token;
 
+        const winPositions = {
+            row: [],
+            col: -1,
+            diag: []
+        };
+
         // 1. Verificar Linhas
-        const rowWin = currentBoard.some(row =>
+        const winningRowIndex = currentBoard.findIndex(row =>
             row.every(cell => cell.getValue() === token)
         );
 
+        if (winningRowIndex > -1) {
+            winPositions.row = [
+                [winningRowIndex, 0],
+                [winningRowIndex, 1],
+                [winningRowIndex, 2]
+            ];
+        }
+
         // 2. Verificar Colunas
-        const colWin = [0, 1, 2].some(colIndex =>
+        const winningColIndex = [0, 1, 2].findIndex(colIndex =>
             currentBoard.every(row => row[colIndex].getValue() === token)
         );
 
-        // 3. Verificar Diagonais
-        const diagWin =
-            (currentBoard[0][0].getValue() === token &&
-                currentBoard[1][1].getValue() === token &&
-                currentBoard[2][2].getValue() === token) ||
-            (currentBoard[0][2].getValue() === token &&
-                currentBoard[1][1].getValue() === token &&
-                currentBoard[2][0].getValue() === token);
+        if (winningColIndex > -1) {
+            winPositions.col = winningColIndex;
+        }
 
-        if (rowWin || colWin || diagWin) {
+        // 3. Verificar Diagonais
+        const diagWin = () => {
+            if (currentBoard[0][0].getValue() === token &&
+                currentBoard[1][1].getValue() === token &&
+                currentBoard[2][2].getValue() === token) return 1;
+
+            if (currentBoard[0][2].getValue() === token &&
+                currentBoard[1][1].getValue() === token &&
+                currentBoard[2][0].getValue() === token) return 2;
+
+            return 0;
+        };
+
+        if (diagWin() === 1) {
+            winPositions.diag = [
+                [0, 0],
+                [1, 1],
+                [2, 2]
+            ]
+        }
+
+        if (diagWin() === 2) {
+            winPositions.diag = [
+                [0, 2],
+                [1, 1],
+                [2, 0]
+            ]
+        }
+
+        if (winPositions.row.length > 0 || winPositions.col > -1 || winPositions.diag.length > 0) {
             //board.printBoard();
             console.log(`${getActivePlayer().name} won the game!`);
             roundsPlayed = 0;
+            tie = false;
             gameOver = true;
-            return true;
         }
 
         // Verificar Empate (Velha)
@@ -143,15 +186,15 @@ function useGameController(
             console.log("The game is a tie!");
             tie = true;
             gameOver = true;
-            return true;
         }
 
-        return false;
+        return winPositions;
     }
 
     return {
         playRound,
         getActivePlayer,
+        getWinPositions,
         getPlayersNames,
         getBoard: board.getBoard,
         switchPlayerTurn
@@ -210,36 +253,37 @@ function useScreenController(
         createScoreBoard();
     }
 
+    function drawWinningLine(winPositions) {
+        if (winPositions.row.length === 0 &&
+            winPositions.col === -1 &&
+            winPositions.diag.length === 0) return;
+
+        const line = document.createElement('div');
+        line.classList.add('winning-line');
+
+        if (winPositions.row.length > 0) {
+            const rowIndex = winPositions.row[0][0];
+            line.classList.add(`row-${rowIndex}`);
+        } else if (winPositions.col > -1) {
+            const colIndex = winPositions.col;
+            line.classList.add(`col-${colIndex}`);
+        } else if (winPositions.diag.length > 0) {
+            const isDiagOne = winPositions.diag[0][0] === 0 && winPositions.diag[0][1] === 0;
+            const diagIndex = isDiagOne ? 0 : 1;
+            line.classList.add(`diag-${diagIndex}`);
+        }
+
+        gameBoardDiv.appendChild(line);
+    }
+
     const updateScreen = () => {
         const activePlayer = game.getActivePlayer();
-
-        if (gameOver) {
-            playerTurn.textContent = tie ? "It's a tie!" : `${activePlayer.name} wins!`;
-
-            if (!tie) {
-                if (activePlayer.player === 1) {
-                    playerOneScore++;
-                    const playerOneScoreboard = document.getElementById('player-one');
-                    playerOneScoreboard.textContent = activePlayer.name + `: ${playerOneScore}`;
-                }
-
-                if (activePlayer.player === 2) {
-                    playerTwoScore++;
-                    const playerTwoScoreboard = document.getElementById('player-two');
-                    playerTwoScoreboard.textContent = activePlayer.name + `: ${playerTwoScore}`;
-                }
-            }
-        }
 
         // Limpa o tabuleiro
         gameBoardDiv.textContent = '';
 
         // Pega a versão mais atualizada dele e a vez do próximo jogador
         const board = game.getBoard();
-
-        if (!gameOver) {
-            playerTurn.textContent = `${activePlayer.name}'s turn...`;
-        }
 
         // Renderiza o tabuleiro
         board.forEach((row, rowIndex) => {
@@ -254,6 +298,29 @@ function useScreenController(
                 gameBoardDiv.appendChild(cellButton);
             })
         })
+
+        if (gameOver) {
+            playerTurn.textContent = tie ? "It's a tie!" : `${activePlayer.name} wins!`;
+
+            if (!tie) {
+
+                drawWinningLine(game.getWinPositions());
+
+                if (activePlayer.player === 1) {
+                    playerOneScore++;
+                    const playerOneScoreboard = document.getElementById('player-one');
+                    playerOneScoreboard.textContent = activePlayer.name + `: ${playerOneScore}`;
+                }
+
+                if (activePlayer.player === 2) {
+                    playerTwoScore++;
+                    const playerTwoScoreboard = document.getElementById('player-two');
+                    playerTwoScoreboard.textContent = activePlayer.name + `: ${playerTwoScore}`;
+                }
+            }
+        } else {
+            playerTurn.textContent = `${activePlayer.name}'s turn...`;
+        }
     }
 
     function clickHandlerBoard(e) {
@@ -352,7 +419,7 @@ function createPlayersForm() {
     p1NameInput.setAttribute('type', 'text');
     p1NameInput.setAttribute('name', 'p1-name');
     p1NameInput.setAttribute('id', 'p1-name');
-    p1NameInput.setAttribute('minlength', '4');
+    p1NameInput.setAttribute('minlength', '3');
     p1NameInput.setAttribute('maxlength', '15');
     p1NameInput.required = true;
 
@@ -368,7 +435,7 @@ function createPlayersForm() {
     p2NameInput.setAttribute('type', 'text');
     p2NameInput.setAttribute('name', 'p2-name');
     p2NameInput.setAttribute('id', 'p2-name');
-    p2NameInput.setAttribute('minlength', '10');
+    p2NameInput.setAttribute('minlength', '3');
     p2NameInput.setAttribute('maxlength', '15');
     p2NameInput.required = true;
 
@@ -412,18 +479,6 @@ let newRoundButtonAdded = false;
 let playerOneScore = 0;
 let playerTwoScore = 0;
 let roundsPlayed = 0;
-
-/*
-    Faltam 2 coisas: 
-    - Adicionar formulário que pega os nomes dos usuários.
-        * Primeiro, criar um método que retorna um objeto com os dois nomes dos jogadores. OK
-        * Segundo, adicionar outros dois botões: OK
-            - Um de submit que chama useScreenController() e inicia o jogo. OK
-            - Outro que cancela a entrada do usuário e volta pra tela inicial. OK
-        * Terceiro, assim que o botão de submit for clicado o formulário precisa sair.
-        * Quarto, quando o formulário sair devem ficar apenas o botão 'New Round' e o botão que reseta o game todo.
-    - Colocar uma linha traçando os tokens que ganharam o round.
-*/
 
 const startGameButton = document.getElementById('start-game-button');
 startGameButton.addEventListener('click', createPlayersForm);
